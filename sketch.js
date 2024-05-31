@@ -24,7 +24,7 @@ function windowResized() {
 
 function setup() 
 { rectMode(RADIUS);
-  let canvas = createCanvas(647, 400);
+  canvas = createCanvas(647, 400);
   centerCanvas();
   canvas.parent(document.getElementById("canvasDiv"));
  
