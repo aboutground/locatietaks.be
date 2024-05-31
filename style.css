@@ -42,6 +42,10 @@ nav a:hover {
     text-align: center;
 }
 
+#canvasDiv {
+    text-align: center;
+}
+
 .quote-container {
     max-width: 600px;
     margin: 0 auto;
