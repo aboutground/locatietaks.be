@@ -18,6 +18,7 @@ function setup()
   bridge = {x: width/2, y: height/2, w: 100, h: 50 };
   
   toll = createSlider(0, 2000);
+  toll.parent(canvas);
   toll.position(10, 10);
   toll.size(80);
  
