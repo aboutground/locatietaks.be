@@ -10,9 +10,22 @@ let totalRent = 1;
 let agents = [];
 let speed = 5;
 
+let canvas;
+
+function centerCanvas() {
+  var x = (windowWidth - width) / 2;
+  var y = (windowHeight - height) / 2;
+  canvas.position(x, y);
+}
+
+function windowResized() {
+  centerCanvas();
+}
+
 function setup() 
 { rectMode(RADIUS);
   let canvas = createCanvas(647, 400);
+  centerCanvas();
   canvas.parent(document.getElementById("canvasDiv"));
  
   bridge = {x: width/2, y: height/2, w: 100, h: 50 };
