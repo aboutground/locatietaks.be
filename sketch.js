@@ -3,7 +3,8 @@ let agents = [];
 
 function setup() {
   rectMode(RADIUS);
-  createCanvas(647, 400);
+  let canvas = createCanvas(647, 400);
+  canvas.parent(document.getElementById("canvasDiv"));
   
   // Create buildings
   for (let i = 0; i < 15; i++) {
