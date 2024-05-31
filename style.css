@@ -35,9 +35,25 @@ nav a:hover {
     padding: 20px;
 }
 
-footer {
+#quote {
+    background-color: #f9f9f9;
+    padding: 20px;
+    margin-top: 20px;
     text-align: center;
-    padding: 1em 0;
-    background-color: #4CAF50;
-    color: white;
+}
+
+.quote-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+blockquote {
+    font-style: italic;
+    font-size: 1.2em;
+    color: #333;
+}
+
+footer {
+    margin-top: 10px;
+    font-size: 0.8em;
 }
