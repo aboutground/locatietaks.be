@@ -1,14 +1,17 @@
-let bridge = {};
+let riverXs = [];
+let bridge = null;
+let bridgeClicked = false;
 let toll;
 
+let works = [];
 let homes = [];
 let homeIndex = 0;
-let houseR = 15;
-let villaR = 25;
+let totalWage = 1;
 let totalRent = 1;
 
 let agents = [];
-let speed = 5;
+let speed = 2;
+let time = 0;
 
 let canvas;
 
@@ -22,228 +25,284 @@ function windowResized() {
   centerCanvas();
 }
 
+function DrawRiver()
+{ noFill()
+  stroke(0, 0, 255)
+  strokeWeight(70)
+  beginShape();
+  for (let i = 0; i <= 6; i++)
+  { curveVertex(riverXs[i], ((i - 1) * 0.25) * height); 
+  }
+  endShape();
+}
+
+function getBridgeX(y)
+{  let i = floor(4 * y / height); 
+   return curvePoint(
+      riverXs[0 + i],
+      riverXs[1 + i],
+      riverXs[2 + i],
+      riverXs[3 + i],
+      4 * y / height - i)
+}
+
+function isPixel(x, y, r, g, b)
+{ let pixelColor = get(x, y);
+  return (pixelColor[0] == r 
+          && pixelColor[1] == g 
+          && pixelColor[2] == b) 
+}
+
 function setup() 
 { rectMode(RADIUS);
   canvas = createCanvas(647, 400);
   centerCanvas();
   canvas.parent(document.getElementById("canvasDiv"));
- 
-  bridge = {x: width/2, y: height/2, w: 100, h: 50 };
+  canvas.mousePressed(()=>
+  {  if (isPixel(mouseX, mouseY, 0, 0, 255))
+     { bridge = {x: getBridgeX(mouseY), y: mouseY, w: 100, h: 50 };   
+     }
+     else
+     { if(bridge) bridgeClicked = 
+         bridge.x - bridge.w / 2 < mouseX 
+      && mouseX < bridge.x + bridge.w / 2
+      && bridge.y - bridge.h / 2 < mouseY
+      && mouseY < bridge.y + bridge.h / 2;
+     }
+
+  });
   
-  toll = createSlider(0, 2000);
+  toll = createSlider(0, 10, 0);
   toll.parent(canvas);
-  toll.position(10, 10);
+  toll.position(20, -20);
   toll.size(80);
- 
-  // Create buildings
-  let houses = [];
-  while (houses.length < 30)
-  { let house = 
-    { x: random(houseR, width / 2 - bridge.w),
-      y: random(houseR, height - 2 * houseR),
-      rent: 0,
-      wage: 1 + random(0, 0.5)
+
+  // Draw Thames
+  riverXs =   
+    [width / 2 + 0,
+     width / 2 + 0, 
+     width / 2 + -20, 
+     width / 2 + 0, 
+     width / 2 + 30,
+     width / 2 + 0,
+     width / 2 + 0]
+   DrawRiver();
+  
+ //per work
+  while (works.length < 10)
+  { let workX = random(25, width - 25);
+   let work = 
+    { x: workX,
+      y: random(25, height - 25),   
+      r: 25,
+      wage: random(5, workX / 5)
     }
-    let overlap = false;
-    for (let i = 0; i < houses.length; i++) 
-    { if (dist(house.x, house.y, houses[i].x, houses[i].y) < 2 * houseR)
-      { overlap = true;
+    let isOverlap = false;
+    let corners = [
+        {x: work.x - work.r, y: work.y - work.r},
+        {x: work.x + work.r, y: work.y - work.r},
+        {x: work.x + work.r, y: work.y + work.r},
+        {x: work.x - work.r, y: work.y + work.r}
+      ];
+    for (let corner of corners) 
+    { if (isPixel(corner.x, corner.y, 0, 0, 255)) 
+      { isOverlap = true;
         break;
       }
-    }
-    if(overlap == false)
-    { houses.push(house);    
     }   
-  }
-  for (let house of houses)
-  { homes.push(house);  
-  } 
-  let villas = [];
-  while (villas.length < 5)
-  { let villa = 
-    { x: random(width / 2 + bridge.w, width - villaR),
-      y: random(villaR, height - villaR),
-      rent: 0,
-      wage: 1.5 + random(0, 1)
-    }
-    let overlap = false;
-    for (let i = 0; i < villas.length; i++) 
-    { if (dist(villa.x, villa.y, villas[i].x, villas[i].y) < 2 * villaR)
-      { overlap = true;
-        break;
+    if(isOverlap == false)
+    { for (let w of works) 
+      { if (dist(work.x, work.y, w.x, w.y) < 3 * work.r)
+        { isOverlap = true;
+          break;
+        }
       }
-    }
-    if (overlap == false)
-    { villas.push(villa);    
+    }   
+    if(isOverlap == false) 
+    {  works.push(work);   
     }  
   }
-  for (let villa of villas)
-  { homes.push(villa);  
-  }
-  
-  // Create agents
-  for (let i = 0; i < homes.length; i++) 
-  { agents.push({
-        x: homes[i].x,
-        y: homes[i].y,
-        home: homes[i],
-        work: homes[i],
-        wage: 0,     
-      });
+ 
+  //per house
+  let home = [];
+  while (homes.length < 20)
+  { let home = 
+    { x: random(15, width - 15),
+      y: random(15, height - 15),    
+      r: 15,
+      rent: 5,
+    }
+    let isOverlap = false;
+    let corners = [
+        {x: home.x - 2 * home.r, y: home.y - 2 * home.r},
+        {x: home.x + 2 * home.r, y: home.y - 2 * home.r},
+        {x: home.x + 2 * home.r, y: home.y + 2 * home.r},
+        {x: home.x - 2 * home.r, y: home.y + 2 * home.r}
+      ];
+    for (let corner of corners) 
+    { if (isPixel(corner.x, corner.y, 0, 0, 255)) 
+      { isOverlap = true;
+        break;
+      }
+    }  
+    if(isOverlap == false)
+    { for (let w of works) 
+      { if (dist(home.x, home.y, w.x, w.y) < 3 * w.r)
+        { isOverlap = true;
+          break;
+        }
+      }
+    }
+    if(isOverlap == false)
+    { for (let h of homes) 
+      { if (dist(home.x, home.y, h.x, h.y) < 3 * home.r)
+        { isOverlap = true;
+          break;
+        }
+      }
+    }   
+    if(isOverlap == false) 
+    {  homes.push(home);   
+       agents.push({
+          x: home.x,
+          y: home.y,
+          home: home,
+          goal: home,
+          cash: 0,
+          time: 0,
+        });
+    }  
   }
 }
 
 function draw() 
-{
-  background(0, 150, 0);
-  
-  // Draw Thames
-  noFill()
-  stroke(0, 0, 255)
-  strokeWeight(70)
-  beginShape();
-  curveVertex(width / 2, 0);
-  curveVertex(width / 2, 0);
-  curveVertex(width / 2 + 50, 0.25 * height);
-  curveVertex(width / 2, 0.5 * height);
-  curveVertex(width / 2 + 20, 0.75 * height);
-  curveVertex(width / 2, height);
-  curveVertex(width / 2, height);
-  endShape();
-  strokeWeight(0);
-  
+{ time++;
   if (mouseIsPressed)
-  { if (bridge.x - bridge.w / 2 < mouseX 
-        && mouseX < bridge.x + bridge.w / 2
-        && bridge.y - bridge.h / 2 < mouseY
-        && mouseY < bridge.y + bridge.h / 2)
-    {
+  { if (bridgeClicked)
+    { bridge.x = getBridgeX(mouseY);
       bridge.y = mouseY;
-      if (bridge.y / height < 0.25)
-      { bridge.x = curvePoint(
-          width / 2,
-          width / 2,
-          width / 2 + 50,
-          width / 2,
-          4 * bridge.y / height)
-      }
-      else if (bridge.y / height < 0.5)
-      { bridge.x = curvePoint(
-          width / 2,
-          width / 2 + 50,
-          width / 2,
-          width / 2 + 20,
-          4 * bridge.y / height - 1)
-      }
-      else if (bridge.y / height < 0.75)
-      { bridge.x = curvePoint(
-          width / 2 + 50,
-          width / 2,
-          width / 2 + 20,
-          width / 2,
-          4 * bridge.y / height - 2)
-      }
-      else
-      { bridge.x = curvePoint(
-          width / 2,
-          width / 2 + 20,
-          width / 2,
-          width / 2,
-          4 * bridge.y / height - 3)
-      }
     }
   }
-  
-  //Draw Bridge
-  fill(120, 80, 0)
-  rect(bridge.x, bridge.y, bridge.w/2, bridge.h/2)
-
-  
-  // Draw agents
-  for (let agent of agents) {
-    fill(255, 200, 200);
-    ellipse(agent.x, agent.y, 10);
-    let dx = - agent.x;
-    let dy = - agent.y;
-    
-    // Move towards work building
-    if (agent.x < bridge.x - bridge.w /2 
-        && agent.work.x < bridge.x - bridge.w /2 ) //to work/home
-    { dx += agent.work.x;
-      dy += agent.work.y;
-    }
-    else if (bridge.x + bridge.w /2 < agent.x 
-             && bridge.x + bridge.w /2 < agent.work.x) //to work/home
-    { dx += agent.work.x;
-      dy += agent.work.y;   
-    }
-    else if (agent.x < bridge.x - bridge.w /2 
-             && bridge.x + bridge.w /2 < agent.work.x) //to bridge
-    { dx += bridge.x - bridge.w /2;
-      dy += bridge.y - 10;    
-    }
-    else if (bridge.x + bridge.w /2 < agent.x 
-             && agent.work.x < bridge.x - bridge.w /2) //to bridge
-    { dx += bridge.x + bridge.w /2;
-      dy += bridge.y + 10;  
-    }
-    else if (agent.x < bridge.x + bridge.w /2
-             && bridge.x + bridge.w /2 < agent.work.x) //over bridge
-    { dx += bridge.x + bridge.w /2;
-      dy += bridge.y - 10;  
-    }
-    else if (bridge.x - bridge.w /2 < agent.x 
-             && agent.work.x < bridge.x - bridge.w /2) //over bridge
-    { dx += bridge.x - bridge.w /2;
-      dy += bridge.y + 10;
-    }  
-    let angle = atan2(dy, dx);
-    agent.x += cos(angle) * speed;
-    agent.y += sin(angle) * speed;    
-
-    
-    // Check if reached work building
-    let d = dist(agent.x, agent.y, agent.work.x, agent.work.y);
-    if (d < 5) 
-    {
-      if (agent.work == agent.home)
-      { agent.home.rent += agent.wage; 
-        agent.wage = 0;
-        while(agent.work == agent.home)
-        {agent.work = random(homes)}
-        for (let i = 0; i < homes.length; i++)
-        { let wage = homes[i].wage;
-          let cost = 
-              (((homes[i].x < width/2 && agent.x < width/2) 
-            || (homes[i].x > width/2 && agent.x > width/2)) 
-            ? (dist(agent.x, agent.y, homes[i].x, homes[i].y)) 
-            : (dist(agent.x, agent.y, bridge.x, bridge.y) 
-               + dist(bridge.x, bridge.y, homes[i].x, homes[i].y)
-               + toll.value())) / 761;
-          if (homes[i] != agent.home 
-              && agent.wage < wage - cost)
-          {  agent.wage = wage - cost;
-             agent.work = homes[i];
+  for (let agent of agents) 
+  { agent.time += 0.02;
+   if (dist(agent.x, agent.y, agent.goal.x, agent.goal.y) < 5) 
+    { if (agent.goal == agent.home)
+      { if (0 < agent.cash) //agent arives home after work
+        { agent.home.rent = 
+            (agent.home.rent + agent.cash / agent.time) / 2; 
+          agent.cash = 0;     
+          agent.time = 0;
+        }
+        let maxHourlyWage = 0;
+        for (let work of works)
+        { let isSameSide = 
+              (work.x < width/2 && agent.x < width/2) 
+           || (work.x > width/2 && agent.x > width/2);
+          let distance =
+            isSameSide
+            ? dist(agent.x, agent.y, work.x, work.y)
+            : bridge
+              ? dist(agent.x, agent.y, bridge.x, bridge.y) 
+                + dist(bridge.x, bridge.y, work.x, work.y)
+              : null;
+          if (distance)
+          { distance *= 0.005;
+            let t = distance;
+            let cost = 0.1 * distance + !isSameSide * toll.value();        
+            let hourlyWage = ( work.wage - cost ) / t; 
+            if (maxHourlyWage < hourlyWage)
+            {  maxHourlyWage = hourlyWage;
+               agent.cash = work.wage - cost;
+               agent.goal = work;
+            }
           }
         } 
       }
       else //agent arives at work
-      { agent.work.wage += random(-0.5, +0.5);
-        agent.work.wage *= 0.9
-        if (agent.work.wage < (agent.work.x < width/2 ? 1 : 1.5))
-          agent.work.wage = (agent.work.x < width/2 ? 1 : 1.5);
-        agent.work = agent.home;      
+      { agent.goal.wage *= random(0.99, 1);
+        agent.goal = agent.home;      
       }
     }
+    
+    if (agent.goal)
+    { let dx = - agent.x;
+      let dy = - agent.y;
+      if (bridge != null
+          && bridge.x - bridge.w /2 <= agent.x 
+          && agent.x <= bridge.x + bridge.w /2
+          && bridge.y - 10 <= agent.y
+          && agent.y <= bridge.y + 10) //over bridge
+      { dx = agent.goal.x - width / 2;
+        dy = 0;  
+      }
+      else if ((agent.x < width /2 
+           && agent.goal.x < width /2 )
+       || (width / 2 < agent.x 
+           && width /2 < agent.goal.x)) //to work/home        
+      { dx += agent.goal.x;
+        dy += agent.goal.y;
+      }
+      else if (bridge != null
+               && agent.x < bridge.x - bridge.w /2 
+               && bridge.x + bridge.w /2 < agent.goal.x) //to bridge
+      { dx += bridge.x - bridge.w /2;
+        dy += bridge.y - 10;    
+      }
+      else if (bridge != null
+               && bridge.x + bridge.w /2 < agent.x 
+               && agent.goal.x < bridge.x - bridge.w /2) //to bridge
+      { dx += bridge.x + bridge.w /2;
+        dy += bridge.y + 10;  
+      }
+    
+      let angle = atan2(dy, dx);
+      agent.x += cos(angle) * speed;
+      agent.y += sin(angle) * speed;   
+    }
+  }
+ 
+  //wage calulation
+  for (let work of works)
+  { work.wage *= random(0.99, 1.01); 
+    totalWage += work.wage;
   }
   
-  // Draw buildings
+  //rent calculation
   totalRent = 1;
-  for (let home of homes) {
-    home.rent *= 0.9999;
-    totalRent += home.rent }
-  for (let home of homes) {
-    fill(5000 * home.rent / totalRent, 70, 70);
-    square(home.x, home.y, home.x < width / 2 ? 15 : 25);
+  for (let home of homes)
+  { home.rent *= 0.9999;
+    totalRent += home.rent 
+  }
+ 
+  agents = agents.filter(agent => 1 <= agent.home.rent)
+  homes = homes.filter(home => 1 <= home.rent)
+ 
+  //DRAW
+  background(0, 150, 0); 
+  DrawRiver();  
+  strokeWeight(0);  
+  if (bridge != null)  
+  {  fill(120, 80, 0);
+     rect(bridge.x, bridge.y, bridge.w/2, bridge.h/2);
+     fill(255)
+     text(nf(toll.value(), 1, 1), bridge.x - 2, bridge.y - 3);
+  } 
+ 
+  for (let agent of agents) 
+  { fill(255, 200, 200);
+    ellipse(agent.x, agent.y, 10);
+  }  
+
+  for (let home of homes) 
+  { fill(5000 * home.rent / totalRent, 70, 70);
+    square(home.x, home.y, home.r);
+    fill(255)
+    text(nf(home.rent, 1, 1), home.x - home.r /2 - 2, home.y + home.r / 2 - 3);
+  } 
+  for (let work of works) 
+  { fill(70, 5000 * (work.wage / totalWage), 70);
+    square(work.x, work.y, work.r);
+    fill(255)
+    text(nf(work.wage, 1, 1), work.x - work.r /2 - 2, work.y + work.r / 2 - 3);
   }
 }
