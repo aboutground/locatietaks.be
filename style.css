@@ -4,12 +4,12 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f9f9f9;
-    color: #333;
+    color: #333333; /* Dark Grey */
 }
 
 header {
-    background-color: #ccff00;
-    color: white;
+    background-color: #CCFF00; /* Lime Green */
+    color: #FFFFFF; /* White */
     text-align: center;
     padding: 1em 0;
 }
@@ -17,19 +17,19 @@ header {
 nav {
     display: flex;
     justify-content: center;
-    background-color: #333;
+    background-color: #333333; /* Dark Grey */
 }
 
 nav a {
-    color: white;
+    color: #FFFFFF; /* White */
     padding: 14px 20px;
     text-decoration: none;
     text-align: center;
 }
 
 nav a:hover {
-    background-color: #ddd;
-    color: black;
+    background-color: #DDDDDD; /* Light Grey */
+    color: #000000; /* Black */
 }
 
 .content {
@@ -55,7 +55,7 @@ nav a:hover {
 blockquote {
     font-style: italic;
     font-size: 1.2em;
-    color: #333;
+    color: #333333; /* Dark Grey */
 }
 
 footer {
@@ -64,6 +64,10 @@ footer {
 }
 
 canvas {
-  display: block;
+    display: block;
 }
 
+/* Ensure all text elements are dark grey */
+h1, h2, h3, h4, h5, h6, p, li, a {
+    color: #333333; /* Dark Grey */
+}
