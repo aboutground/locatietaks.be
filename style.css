@@ -65,6 +65,11 @@ footer {
 
 canvas {
     display: block;
+    left: 0 px;
+    top: 0 px;
+    width: 647px; 
+    height: 400px; 
+    position: relative;
 }
 
 /* Ensure all text elements are dark grey */
