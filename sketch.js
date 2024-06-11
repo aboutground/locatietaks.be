@@ -204,9 +204,8 @@ class Agent {
                 + dist(this.x, this.y, river.bridge.x, river.bridge.y) 
                 + dist(river.bridge.x, river.bridge.y, work.x, work.y) 
               : null;
-          console.log(needBridge + " " + distance)
           if (distance
-              && distance < 430) {
+              && distance < 500) {
             let cost = needBridge
               ? 1.5 * Agent.moveCost * distance + river.bridge.toll
               : 1.5 * Agent.moveCost * distance;
@@ -221,7 +220,7 @@ class Agent {
     }
     
     //move
-    if (2 < time.getHour() 
+    if (1.5 < time.getHour() 
         && this.goal) {
       let dx = -this.x;
       let dy = -this.y;
@@ -499,7 +498,8 @@ function isPixel(x, y, r, g, b) {
 function setup() {
   rectMode(RADIUS);
   canvas = createCanvas(647, 400);
-  canvas.parent(document.getElementById("canvasDiv"));
+  if (document.getElementById("canvasDiv"))
+  {canvas.parent(document.getElementById("canvasDiv"));}
   
   time = new Time();
   river = new River();
