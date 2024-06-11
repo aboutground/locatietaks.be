@@ -59,10 +59,14 @@ class Bridge {
       rect(this.x - 20, this.y, 5, 5);
       rect(this.x + 20, this.y, 5, 5);
       fill(0);
-      text("-", this.x - 20 - 2, this.y + 3);
+      text("-", this.x - 20 - 2, this.y + 4);
       text("+", this.x + 20 - 3, this.y + 3);
-      fill(255);
+      stroke(colors.grey.r, colors.grey.g, colors.grey.b, 100);
+      strokeWeight(3);
+      fill(255)
+      textSize(14);
       text(nf(this.toll, 1, 0), this.x - 6, this.y + 4);
+      strokeWeight(0)
     }
   }
   onMousePressed() {
@@ -200,8 +204,9 @@ class Agent {
                 + dist(this.x, this.y, river.bridge.x, river.bridge.y) 
                 + dist(river.bridge.x, river.bridge.y, work.x, work.y) 
               : null;
+          console.log(needBridge + " " + distance)
           if (distance
-              && distance < 220) {
+              && distance < 430) {
             let cost = needBridge
               ? 1.5 * Agent.moveCost * distance + river.bridge.toll
               : 1.5 * Agent.moveCost * distance;
@@ -289,20 +294,23 @@ class Agent {
   draw() {
     fill(colors.grey.r)
     if (this.contract)
-    { stroke(40,60,20, 100);
+    { stroke(colors.grey.r, colors.grey.g, colors.grey.b, 100);
       strokeWeight(this.contract.days);
       line(this.home.x, 
            this.home.y, 
            this.contract.work.x, 
            this.contract.work.y);
       strokeWeight(3);
+      fill(255)
+      textSize(8);
       text(nf(this.contract.wage, 1, 1), 
             (this.home.x + this.contract.work.x) / 2 - 6,
             (this.home.y + this.contract.work.y) / 2 + 2);
+      textSize(12);
       noStroke();
     }
     
-    fill(colors.brown.r, colors.brown.g, colors.brown.b);
+    fill(colors.grey.r, colors.grey.g, colors.grey.b);
     ellipse(this.x, this.y, 10);
     if (this.goal == this.home)
     { text(nf(this.cash, 1, 1), this.x + 6, this.y + 4); } 
@@ -397,10 +405,14 @@ class Work {
          colors.orange.g - (colors.orange.g - colors.lime.g) * r,
          colors.orange.b - (colors.orange.b - colors.lime.b) * r); 
     square(this.x, this.y, this.r);
-    fill(255);
+    stroke(colors.grey.r, colors.grey.g, colors.grey.b, 100);
+    strokeWeight(3);
+    fill(255)
+    textSize(14);
     //text(nf(this.workerAmount, 1, 0), this.x - this.r / 2 - 2, this.y + this.r / 2 + 14);
     text(nf(this.wage, 1, 1), this.x - this.r / 2, this.y + this.r / 2 - 7);
     //text(nf(this.workerOutput - (this.workerAmount + 1) * this.dWorkerOutput, 1, 1), this.x - this.r / 2 - 2, this.y + this.r / 2 - 17);
+    strokeWeight(0);
   }
 }
 
@@ -468,19 +480,13 @@ class Home {
          colors.orange.g - (colors.orange.g - colors.lime.g) * r,
          colors.orange.b - (colors.orange.b - colors.lime.b) * r); 
     square(this.x, this.y, this.r);
-    fill(255);
+    stroke(colors.grey.r, colors.grey.g, colors.grey.b, 100);
+    strokeWeight(3);
+    fill(255)
+    textSize(12);
     text(nf(this.rent, 1, 1), this.x - this.r / 2 - 3, this.y + this.r / 2 - 3);
+    strokeWeight(0);
   }
-}
-
-function centerCanvas() {
-  var x = (windowWidth - width) / 2;
-  var y = (windowHeight - height) / 2;
-  canvas.position(x, y);
-}
-
-function windowResized() {
-  centerCanvas();
 }
 
 function isPixel(x, y, r, g, b) {
@@ -493,11 +499,7 @@ function isPixel(x, y, r, g, b) {
 function setup() {
   rectMode(RADIUS);
   canvas = createCanvas(647, 400);
-  centerCanvas();
   canvas.parent(document.getElementById("canvasDiv"));
-  canvas.style.position = "relative";
-  canvas.style.left = '0px';
-  canvas.style.top = '0px';
   
   time = new Time();
   river = new River();
