@@ -495,6 +495,9 @@ function setup() {
   canvas = createCanvas(647, 400);
   centerCanvas();
   canvas.parent(document.getElementById("canvasDiv"));
+  canvas.style.position = "relative";
+  canvas.style.left = '0px';
+  canvas.style.top = '0px';
   
   time = new Time();
   river = new River();
