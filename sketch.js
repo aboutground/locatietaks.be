@@ -165,64 +165,76 @@ class Agent {
     this.y = home.y;
     this.home = home;
     this.contract = null;
-    this.goal = home;
+    this.goal = null;
     this.cash = 0;
     this.shift = 0;
     Agent.all.push(this);
   }
   
-  update() {
-    if (time.isNewDay)
+  update() 
+  { if (time.isNewDay)
     { //Process cash
       this.home.rent = (this.home.rent + this.cash) / 2;
       this.tollPaid = false;
       if (this.cash <= 1)
       { this.contract = null;
-      } 
-      //Reset cash
-      this.cash = 0;
-
-      if (this.contract)
-      { this.contract.days--;
-        if (this.contract.days <= 0)
-        { this.contract = null; 
-        }
-        else
+      }   
+      if (this.goal != this.home)
+      {
+        //Reset cash
+        this.cash = 0;
+        if (this.contract)
         { this.goal = this.contract.work; 
-        }
-      }    
-      else
-      { //find work
-        let maxIncome = 0;
-        for (let work of Work.all) {
-          let needBridge = (work.x < width / 2 && width / 2 < this.x) 
-                        || (this.x < width / 2 && width / 2 < work.x);
-          let distance = !needBridge 
-            ? dist(this.x, this.y, work.x, work.y) 
-            : river.bridge 
-              ? 100 
-                + dist(this.x, this.y, river.bridge.x, river.bridge.y) 
-                + dist(river.bridge.x, river.bridge.y, work.x, work.y) 
-              : null;
-          if (distance
-              && distance < 500) {
-            let cost = needBridge
-              ? 1.5 * Agent.moveCost * distance + river.bridge.toll
-              : 1.5 * Agent.moveCost * distance;
-            let income = work.wage - cost - random(0, this.home.rent / 4);
-            if (0 < income && maxIncome < income) {
-              maxIncome = income;
-              this.goal = work;
-            }
+          this.contract.days--;     
+          if (this.contract.days <= 0)
+          { this.contract = null; 
+          }
+          else if ((this.contract.work.x < width / 2 
+                            && width / 2 < this.x) 
+                        || (this.x < width / 2 
+                            && width / 2 < this.contract.work.x))
+          { let distance = 100 
+                    + dist(this.x, this.y, 
+                           river.bridge.x, river.bridge.y) 
+                    + dist(river.bridge.x, river.bridge.y, 
+                           this.contract.work.x, this.contract.work.y);
+            if (550 < distance)
+            {  this.contract = null; 
+            }      
           }   
         }
+        if (!this.contract)
+        { //find work
+          let maxIncome = 0;
+          for (let work of Work.all) 
+          { let needBridge = (work.x < width / 2 && width / 2 < this.x) 
+                          || (this.x < width / 2 && width / 2 < work.x);
+            let distance = !needBridge 
+              ? dist(this.x, this.y, work.x, work.y) 
+              : river.bridge 
+                ? 100 
+                  + dist(this.x, this.y, river.bridge.x, river.bridge.y) 
+                  + dist(river.bridge.x, river.bridge.y, work.x, work.y) 
+                : null;
+            if (distance
+                && distance < 550) 
+            { let cost = needBridge
+                ? 1.5 * Agent.moveCost * distance + river.bridge.toll
+                : 1.5 * Agent.moveCost * distance;
+              let income = work.wage - cost - random(0, this.home.rent / 4);
+              if (0 < income && maxIncome < income) 
+              { maxIncome = income;
+                this.goal = work;
+              }
+            }   
+          }
+        }
       }
-    }
-    
+    }  
     //move
     if (1.5 < time.getHour() 
-        && this.goal) {
-      let dx = -this.x;
+        && this.goal) 
+    { let dx = -this.x;
       let dy = -this.y;
       if (river.bridge 
           && river.bridge.x - river.bridge.w / 2 <= this.x 
