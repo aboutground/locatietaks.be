@@ -1,3 +1,11 @@
+let state = 0;
+//0 intro with quote
+//1 show 10 sec/onclick
+//2 click on the river to place bridge
+//3 move bridge
+//4 change toll
+//5 place
+
 let colors = 
 { teal: {r: 34, g: 170, b: 152},
   yellow: {r: 244, g: 237, b: 25},
@@ -59,13 +67,15 @@ class Bridge {
       rect(this.x - 20, this.y, 5, 5);
       rect(this.x + 20, this.y, 5, 5);
       fill(0);
-      text("-", this.x - 20 - 2, this.y + 4);
-      text("+", this.x + 20 - 3, this.y + 3);
+      textAlign(CENTER, CENTER);
+      text("-", this.x - 30, this.y - 10, 20, 20);
+      text("+", this.x + 10, this.y - 10, 20, 20);
       stroke(colors.grey.r, colors.grey.g, colors.grey.b, 100);
       strokeWeight(3);
       fill(255)
       textSize(14);
-      text(nf(this.toll, 1, 0), this.x - 6, this.y + 4);
+      textAlign(CENTER);
+      text(nf(this.toll, 1, 0), this.x - 10, this.y - 10, 20, 20);
       strokeWeight(0)
     }
   }
@@ -143,10 +153,28 @@ class River {
 }
 
 class Contract
-{ constructor(work) {
+{ constructor(agent, work) {
+    this.home = agent.home;
     this.work = work;
     this.days = random(5, 10);
     this.wage = work.wage;
+  }
+  draw()
+  { stroke(colors.grey.r, colors.grey.g, colors.grey.b, 100);
+    strokeWeight(this.days);
+    line(this.home.x, 
+         this.home.y, 
+         this.work.x, 
+         this.work.y);
+    strokeWeight(3);
+    fill(255)
+    textSize(8);
+    textAlign(CENTER, CENTER);
+    text( nf(this.wage, 1, 1), 
+          (this.home.x + this.work.x) / 2 - 10,
+          (this.home.y + this.work.y) / 2 - 10,
+          20,
+          20);
   }
 }
 
@@ -292,7 +320,7 @@ class Agent {
           if (23 - this.shift < time.getHour()) {
             if (!this.contract
                 && this.goal.wage < this.goal.getMarginalWorkerOutput())
-            { this.contract = new Contract(this.goal);      
+            { this.contract = new Contract(this, this.goal);      
             }
             this.goal = this.home;
             this.shift = 0;
@@ -303,28 +331,17 @@ class Agent {
   }
 
   draw() {
-    fill(colors.grey.r)
     if (this.contract)
-    { stroke(colors.grey.r, colors.grey.g, colors.grey.b, 100);
-      strokeWeight(this.contract.days);
-      line(this.home.x, 
-           this.home.y, 
-           this.contract.work.x, 
-           this.contract.work.y);
-      strokeWeight(3);
-      fill(255)
-      textSize(8);
-      text(nf(this.contract.wage, 1, 1), 
-            (this.home.x + this.contract.work.x) / 2 - 6,
-            (this.home.y + this.contract.work.y) / 2 + 2);
-      textSize(12);
-      noStroke();
-    }
-    
+    { this.contract.draw();
+    }  
+    noStroke();
+    textSize(12);
     fill(colors.grey.r, colors.grey.g, colors.grey.b);
     ellipse(this.x, this.y, 10);
     if (this.goal == this.home)
-    { text(nf(this.cash, 1, 1), this.x + 6, this.y + 4); } 
+    {  textAlign(LEFT, CENTER);
+       text(nf(this.cash, 1, 1), this.x + 6, this.y); 
+    } 
   }
 }
 
@@ -421,7 +438,13 @@ class Work {
     fill(255)
     textSize(14);
     //text(nf(this.workerAmount, 1, 0), this.x - this.r / 2 - 2, this.y + this.r / 2 + 14);
-    text(nf(this.wage, 1, 1), this.x - this.r / 2, this.y + this.r / 2 - 7);
+    
+    textAlign(CENTER, CENTER);
+    text( nf(this.wage, 1, 1), 
+          this.x - this.r / 2, 
+          this.y - this.r / 2,
+          this.r,
+          this.r);
     //text(nf(this.workerOutput - (this.workerAmount + 1) * this.dWorkerOutput, 1, 1), this.x - this.r / 2 - 2, this.y + this.r / 2 - 17);
     strokeWeight(0);
   }
@@ -495,7 +518,12 @@ class Home {
     strokeWeight(3);
     fill(255)
     textSize(12);
-    text(nf(this.rent, 1, 1), this.x - this.r / 2 - 3, this.y + this.r / 2 - 3);
+    textAlign(CENTER, CENTER);
+    text( nf(this.rent, 1, 1), 
+          this.x - this.r / 2, 
+          this.y - this.r / 2,
+          this.r,
+          this.r);
     strokeWeight(0);
   }
 }
@@ -520,7 +548,14 @@ function setup() {
   Work.all = [];
   
   canvas.mousePressed(() => {
-    river.onMousePressed();
+    switch(state) {
+      case 0:
+          state = 1;
+        break;
+      case 1:
+        river.onMousePressed();
+        break;
+    }
   });
   
   river.draw();
@@ -532,57 +567,79 @@ function setup() {
   }
 }
 
+let buttonTime = 0;
+
 function draw() {
-  time.update();
+  switch(state) {
+    case 0:
+      background(colors.yellow.r, colors.yellow.g, colors.yellow.b);
+      fill(colors.grey.r, colors.grey.g, colors.grey.b);
+      textSize(17)
+      textAlign(CENTER);
+      text("“Some years ago in London, there was a toll bar on a bridge across the Thames, and all the working people who lived on the south side of the river had to pay a daily toll of one penny for going and returning from their work. The spectacle of these poor people thus mulcted of so large a proportion of their earnings offended the public conscience, and agitation was set on foot, municipal authorities were roused, and at the cost of the taxpayers, the bridge was freed and the toll removed. All those people who used the bridge were saved sixpence a week, but within a very short time rents on the south side of the river were found to have risen about sixpence a week, or the amount of the toll which had been remitted! (...) All goes back to the land, and the landowner is able to absorb to himself a share of almost every public and every private benefit, however important or however pitiful those benefits may be.”", 20, 40, width - 40, height);
+      textAlign(RIGHT);
+      text("~ Winston Churchill, 1909", 0, height - 80, width - 10, height - 50);
+      fill(colors.teal.r, colors.teal.g, colors.teal.b);
+      buttonTime += 1;
+      textSize(17 + 0.5 * cos(buttonTime / 20));
+      textAlign(CENTER)
+      text("<click to continue>", 0, height - 40, width - 10, height - 50);
+      break;
+    case 1:
+      { time.update();
+        if (mouseIsPressed) {
+          if (river.bridge 
+              && river.bridge.isClicked) {
+            river.moveBridge(constrain(mouseY, 20, height - 20));
+          }
+        }
 
-  if (mouseIsPressed) {
-    if (river.bridge 
-        && river.bridge.isClicked) {
-      river.moveBridge(constrain(mouseY, 20, height - 20));
+        // DRAW
+        background(colors.teal.r, colors.teal.g, colors.teal.b);
+
+        river.draw();
+        if(river.bridge) {
+          river.bridge.draw();    
+        }
+
+        for (let agent of Agent.all) {
+          agent.update();
+          agent.draw();
+        }
+        Home.minRent = 9999999;
+        Home.maxRent = 0;
+        for (let home of Home.all)
+        { if (home.rent < Home.minRent)
+          { Home.minRent = home.rent; }
+          else if (Home.maxRent < home.rent)
+          { Home.maxRent = home.rent; } 
+        }
+        for (let home of Home.all) {
+          home.update();
+          home.draw();
+        }
+        Work.minWage = 9999999;
+        Work.maxWage = 0;
+        for (let work of Work.all)
+        { if (work.wage < Work.minWage )
+          { Work.minWage = work.wage; }
+          else if (Work.maxWage < work.wage)
+          { Work.maxWage = work.wage; } 
+        }
+        for (let work of Work.all) {
+          work.update();
+          work.draw();
+        }
+
+
+        // REMOVE BROKE Agent.all
+        Agent.all = Agent.all.filter(agent => agent.home.rent >= 1);
+        Home.all = Home.all.filter(home => home.rent >= 1);
+
+        time.drawSunlight() 
     }
+      break;
+    default:
+      // code block
   }
-
-  // DRAW
-  background(colors.teal.r, colors.teal.g, colors.teal.b);
-  
-  river.draw();
-  if(river.bridge) {
-    river.bridge.draw();    
-  }
-  
-  for (let agent of Agent.all) {
-    agent.update();
-    agent.draw();
-  }
-  Home.minRent = 9999999;
-  Home.maxRent = 0;
-  for (let home of Home.all)
-  { if (home.rent < Home.minRent)
-    { Home.minRent = home.rent; }
-    else if (Home.maxRent < home.rent)
-    { Home.maxRent = home.rent; } 
-  }
-  for (let home of Home.all) {
-    home.update();
-    home.draw();
-  }
-  Work.minWage = 9999999;
-  Work.maxWage = 0;
-  for (let work of Work.all)
-  { if (work.wage < Work.minWage )
-    { Work.minWage = work.wage; }
-    else if (Work.maxWage < work.wage)
-    { Work.maxWage = work.wage; } 
-  }
-  for (let work of Work.all) {
-    work.update();
-    work.draw();
-  }
-
-  
-  // REMOVE BROKE Agent.all
-  Agent.all = Agent.all.filter(agent => agent.home.rent >= 1);
-  Home.all = Home.all.filter(home => home.rent >= 1);
-
-  time.drawSunlight()
 }
