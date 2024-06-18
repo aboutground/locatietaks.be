@@ -1,3 +1,7 @@
+.hidden {
+    display: none;
+}
+
 body {
     justify-content: center;
     font-family: Arial, sans-serif;
