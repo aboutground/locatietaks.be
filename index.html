@@ -30,14 +30,14 @@
 </header>
 
 <nav>
-    <a href="#home">Home</a>
-    <a href="ideologie.html">ideologie</a> 
-    <a href="#land-economics">theorie</a>
-    <a href="#location-tax">praktijk</a>
-    <a href="#case-studies">vastgoed cyclus</a>
-    <a href="#resources">in het nieuws</a>
-    <a href="#events">evenmenten</a>
-    <a href="#get-involved">Doe Mee</a>
+    <a href="#home" class="nav-link">Home</a>
+    <a href="#ideologie" class="nav-link">Ideologie</a>
+    <a href="#land-economics" class="nav-link">Theorie</a>
+    <a href="#location-tax" class="nav-link">Praktijk</a>
+    <a href="#case-studies" class="nav-link">Vastgoed Cyclus</a>
+    <a href="#resources" class="nav-link">In het Nieuws</a>
+    <a href="#events" class="nav-link">Evenmenten</a>
+    <a href="#get-involved" class="nav-link">Doe Mee</a>
 </nav>
 
 <div class="content">
@@ -45,15 +45,47 @@
         <p>Op deze website vindt u alles over de locatietaks en hoe het kan bijdragen aan een eerlijke en rechtvaardige belastingstructuur.</p>
     </section>
 
-<section id="quote">
-        </div>
-        <div id="canvasDiv" style="margin: auto; width: 647px; height: 400px; position: relative; left: 0px; top: 0px;">
-        </div>
+    <section id="quote">
+        <div id="canvasDiv" style="margin: auto; width: 647px; height: 400px; position: relative; left: 0px; top: 0px;"></div>
     </section>
 
     <section id="about">
         <h2>Over Ons</h2>
         <p>Locatietaks.be is gewijd aan het promoten van de locatietaks, een belastingvoorstel dat vergelijkbaar is met de land waarde belasting. Onze missie is om kennis te delen en mensen te rekruteren die deze visie willen ondersteunen en verspreiden.</p>
+    </section>
+
+    <section id="ideologie" class="hidden">
+        <h1>Ideologieën over Grond als Productiefactor en de Land Value Tax</h1>
+        <p>Ontdek hoe verschillende denkers kijken naar grond en de land value tax.</p>
+        <img src="/PNG/Kompas.png" alt="" width="400" height="400">
+        <img src="/PNG/KompasVrije.png" alt="" width="400" height="400">
+        <img src="/PNG/TAX LAND.png" alt="" width="400" height="400">
+
+        <h2>Meng Ke</h2>
+        <img src="/PNG/MengKe.png" alt="Meng Ke Quote">
+        
+        <h2>David Ricardo</h2>
+        <p>Beschrijving van Ricardiaanse economie en zijn visie op grond als een productiefactor, evenals zijn steun voor de land value tax.</p>
+
+        <h2>Adam Smith</h2>
+        <p>Uitleg over Smith's opvattingen over grond en zijn mogelijke standpunt over de land value tax.</p>
+        <img src="/PNG/AdamSmith.png" alt="Adam Smith Quote">
+
+        <h2>Thomas Paine</h2>
+        <img src="/PNG/ThomasPaine.png" alt="Thomas Paine Quote">
+
+        <h2>Karl Marx</h2>
+        <p>Marxistische perspectieven op grond als productiefactor en de land value tax, inclusief kritiek en ondersteuning.</p>
+
+        <h2>Henry George</h2>
+        <p>Beschrijving van Henry George's ideeën over grond en zijn pleidooi voor de land value tax als oplossing voor sociale ongelijkheid.</p>
+
+        <h2>Winston Churchill</h2>
+        <p>Standpunten van Winston Churchill over grond als productiefactor en zijn houding ten opzichte van de land value tax, indien beschikbaar.</p>
+        <img src="/PNG/WinstonChurchill.png" alt="Winston Churchill Quote">
+
+        <h2>Milton Friedman</h2>
+        <p>Friedman's opvattingen over grond en of hij de land value tax heeft ondersteund of bekritiseerd, evenals zijn economische ideologie.</p>
     </section>
 
     <!-- Additional sections for other menu items can be added here -->
@@ -63,6 +95,26 @@
     <p>&copy; 2024 locatietaks.be. Alle rechten voorbehouden.</p>
 </footer>
 
-<script src="sketch.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sections = document.querySelectorAll('section');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href').substring(1);
+
+            sections.forEach(section => {
+                if (section.id === targetId) {
+                    section.classList.remove('hidden');
+                } else {
+                    section.classList.add('hidden');
+                }
+            });
+        });
+    });
+});
+</script>
 </body>
 </html>
